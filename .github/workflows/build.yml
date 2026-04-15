@@ -1,0 +1,83 @@
+name: Build
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - arch: x64
+            cc: gcc
+            flags: "-static"
+          - arch: arm64
+            cc: aarch64-linux-gnu-gcc
+            flags: "-static"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install cross-compiler
+        if: matrix.arch == 'arm64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+
+      - name: Build binary
+        run: ${{ matrix.cc }} ${{ matrix.flags }} -o satan-linux-${{ matrix.arch }} satan.c
+
+      - name: Package
+        run: tar czvf satan-linux-${{ matrix.arch }}.tar.gz satan-linux-${{ matrix.arch }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: satan-linux-${{ matrix.arch }}
+          path: satan-linux-${{ matrix.arch }}.tar.gz
+
+      - name: Upload release asset
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: satan-linux-${{ matrix.arch }}.tar.gz
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build x64
+        run: clang -arch x86_64 -o satan-macos-x64 satan.c
+
+      - name: Build arm64
+        run: clang -arch arm64 -o satan-macos-arm64 satan.c
+
+      - name: Package
+        run: |
+          tar czvf satan-macos-x64.tar.gz satan-macos-x64
+          tar czvf satan-macos-arm64.tar.gz satan-macos-arm64
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: satan-macos
+          path: |
+            satan-macos-x64.tar.gz
+            satan-macos-arm64.tar.gz
+
+      - name: Upload release assets
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            satan-macos-x64.tar.gz
+            satan-macos-arm64.tar.gz
