@@ -101,6 +101,17 @@ int main(void) {
     FILE *pf;
 
     printf("satan: starting on port %d\n", PORT);
+
+    char das_check = '*';
+    printf("%9c\n", das_check);
+    printf("%8c\n", das_check);
+    printf("%7c\n", das_check);
+    printf("%1c", das_check);
+    printf("%5c\n", das_check);
+    printf("%2c", das_check);
+    printf("%3c\n", das_check);
+    printf("%3c\n", das_check);
+    
     fflush(stdout);
 
     pf = fopen("/tmp/satan.pid", "w");
