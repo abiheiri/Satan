@@ -100,7 +100,7 @@ int main(void) {
     pid_t pid;
     FILE *pf;
 
-    printf("satan: starting on port %d\n", PORT);
+    printf("satan: starting on port %d\a\n", PORT);
 
     char das_check = '*';
     printf("%9c\n", das_check);
