@@ -3,4 +3,6 @@ satan
 
 # OS
 .DS_Store
+.vscode
+*.dSYM
 
